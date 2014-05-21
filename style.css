@@ -1,0 +1,17 @@
+/*
+Theme Name: TV Jussieu
+Theme URI: http://www.tvjussieu.fr/
+Description: La chaine qui fait bouger le campus
+Author: Yassine Guedidi
+Author URI: http://yassine.guedidi.com/
+Template: twentyfourteen
+Version: 0.1
+Tags: black, green, white, light, dark, two-columns, three-columns, left-sidebar, right-sidebar, fixed-layout, responsive-layout, custom-background, custom-header, custom-menu, editor-style, featured-images, flexible-header, full-width-template, microformats, post-formats, rtl-language-support, sticky-post, theme-options, translation-ready, accessibility-ready
+Text Domain: tvjussieu
+*/
+
+@import url("../twentyfourteen/style.css");
+
+.site-description {
+    /*display: none;*/
+}
