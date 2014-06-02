@@ -38,7 +38,7 @@ get_header();
 							printf( __( 'Yearly JTs Archives: %s', 'tvjussieu' ), get_the_date( _x( 'Y', 'yearly archives date format', 'twentyfourteen' ) ) );
 
 						else :
-							_e( 'JTs Archives', 'tvjussieu' );
+							_e( 'Les JTs', 'tvjussieu' );
 
 						endif;
 						?>
@@ -55,7 +55,7 @@ get_header();
 				 * use this in a child theme, then include a file called called content-___.php
 				 * (where ___ is the post format) and that will be used instead.
 				 */
-				get_template_part( 'content', 'jt' );
+				get_template_part( 'partials/content', 'jt_list' );
 
 			endwhile;
 			// Previous/next page navigation.

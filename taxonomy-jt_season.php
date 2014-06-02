@@ -27,7 +27,7 @@ get_header();
 			<?php if ( 0 ) : ?>
 				<header class="page-header">
 					<h1 class="page-title">
-						<?php _e( 'Season', 'tvjussieu' ); ?>
+						<?php _e( 'Saison', 'tvjussieu' ); ?>
 					</h1>
 				</header><!-- .page-header -->
 			<?php endif; ?>
@@ -41,7 +41,7 @@ get_header();
 				 * use this in a child theme, then include a file called called content-___.php
 				 * (where ___ is the post format) and that will be used instead.
 				 */
-				get_template_part( 'content', 'jt' );
+				get_template_part( 'partials/content', 'jt_list' );
 
 			endwhile;
 			// Previous/next page navigation.
