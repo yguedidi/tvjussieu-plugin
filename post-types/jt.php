@@ -14,13 +14,12 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 
 		public function init()
 		{
-			add_filter( 'wp_insert_post_data', array($this, 'pre_save_post'), '99', 2 );
-			add_action( 'save_post', array($this, 'save_post') );
-
 			add_filter( 'post_type_link', array($this, 'jt_link'), 10, 3 );
 			add_rewrite_rule(
 				self::SLUG . '/([^/]+)/([^/]+)-([0-9]+)/?$', 'index.php?post_type=' . self::POST_TYPE . '&name=$matches[1]-$matches[2]-$matches[3]', 'top'
 			);
+
+			add_permastruct('jt_perma', self::SLUG . '/%jt_season%/%jt_type%');
 
 			$this->create_taxonomies();
 			$this->create_post_type();
@@ -30,7 +29,78 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 
 		public function admin_init()
 		{
+			add_filter( 'wp_insert_post_data', array($this, 'pre_save_post'), '99', 2 );
+			add_action( 'save_post', array($this, 'save_post') );
+
 			add_action( 'add_meta_boxes', array($this, 'add_meta_boxes') );
+
+			add_filter( 'manage_edit-jt_columns', array($this, 'reorder_edit_column'), 10, 1 );
+			add_filter( 'manage_edit-jt_sortable_columns', array($this, 'sortable_jt_name_column') );
+			add_action( 'manage_jt_posts_custom_column', array($this, 'fill_jt_column'), 10, 2 );
+			add_action( 'pre_get_posts', array($this, 'sort_by_jt_name') );
+			add_action( 'admin_head', array($this, 'resize_jt_name_column') );
+		}
+
+		public function reorder_edit_column( $columns )
+		{
+			$columns['jt_name'] = __( 'JT', 'tvjussieu' );
+			unset( $columns['taxonomy-jt_season'] );
+			unset( $columns['taxonomy-jt_type'] );
+			$order = array_flip( array('cb', 'jt_name', 'title', 'comments', 'date') );
+			return array_merge($order, $columns);
+		}
+
+		public function sortable_jt_name_column( $columns ) {
+			$columns['jt_name'] = 'jt_name';
+			return $columns;
+		}
+
+		public function fill_jt_column( $column, $post_id )
+		{
+			global $post;
+			switch ($column) {
+				case 'jt_name':
+					$season = get_the_terms( $post_id, self::POST_TYPE . '_season' );
+					if ( !is_wp_error( $season ) && !empty( $season ) && is_object( reset( $season ) ) ) {
+						$season = reset( $season );
+						$season = sprintf( '<a href="%s">%s</a>',
+							esc_url( add_query_arg( array( 'post_type' => self::POST_TYPE, 'jt_season' => $season->slug ), 'edit.php' ) ),
+							esc_html( sanitize_term_field( 'name', $season->name, $season->term_id, 'jt_season', 'display' ) )
+						);
+					} else {
+						$season = 'hors-saison';
+					}
+
+					$type = get_the_terms( $post_id, self::POST_TYPE . '_type' );
+					if ( !is_wp_error( $type ) && !empty( $type ) && is_object( reset( $type ) ) ) {
+						$type = reset( $type );
+						$type = sprintf( '<a href="%s">%s</a>',
+							esc_url( add_query_arg( array( 'post_type' => self::POST_TYPE, 'jt_type' => $type->slug ), 'edit.php' ) ),
+							esc_html( sanitize_term_field( 'name', $type->name, $type->term_id, 'jt_type', 'display' ) )
+						);
+					} else {
+						$type = 'jt';
+					}
+
+					echo $season . ' - ' . $type . ' - n°' . get_post_meta( $post_id, 'jt_n', true );
+					break;
+			}
+		}
+
+		public function sort_by_jt_name( WP_Query $query )
+		{
+			if ( !is_admin() || self::POST_TYPE != $query->get( 'post_type') ) {
+				return;
+			}
+
+			if ( 'jt_name' == $query->get( 'orderby') ) {
+				$query->set('orderby','name');
+			}
+		}
+
+		public function resize_jt_name_column()
+		{
+			echo '<style>.widefat th.column-jt_name { width: 200px; }</style>';
 		}
 
 		public function facebook_og_metas( $metas )
@@ -299,11 +369,12 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 				'show_admin_column' => true,
 				'show_in_nav_menus' => true,
 				'show_tagcloud' => true,
-				'rewrite' => array(
+				'rewrite' => true,
+				/*'rewrite' => array(
 					'slug' => 'jt-type',
 					'with_front' => true,
 					'hierarchical' => false,
-				),
+				),*/
 				'meta_box_cb' => false,
 			) );
 		}
