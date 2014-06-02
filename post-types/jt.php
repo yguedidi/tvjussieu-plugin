@@ -1,7 +1,6 @@
 <?php
 
 if ( !class_exists( 'TVJussieu_JT' ) ) {
-
 	class TVJussieu_JT
 	{
 		const POST_TYPE = 'jt';
@@ -9,87 +8,93 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 
 		public function __construct()
 		{
-			add_action( 'init', array( $this, 'init' ) );
-			add_action( 'admin_init', array( $this, 'admin_init' ) );
+			add_action( 'init', array($this, 'init') );
+			add_action( 'admin_init', array($this, 'admin_init') );
 		}
 
 		public function init()
 		{
-			//add_rewrite_tag('%jt%','(jt)','post_type=');
-			//add_rewrite_tag( '%jt_season%', '(saison-[0-9]+)' );
-			//add_rewrite_tag( '%jt_n%', '([0-9]+)' );
-			//add_permastruct('tvj_jt_archive', self::SLUG . '/%year%/%monthnum%/%day%');
-			//add_permastruct( 'tvj_jt_season', self::SLUG . '/%jt_season%' );
-			//add_permastruct( 'tvj_jt_season', self::SLUG . '/%jt_season%/%jt_type%-%jt_n%' );
-			//add_action( 'pre_get_posts', array( $this, 'handle_jt_query' ) );
+			add_filter( 'wp_insert_post_data', array($this, 'pre_save_post'), '99', 2 );
+			add_action( 'save_post', array($this, 'save_post') );
 
-			add_filter( 'wp_insert_post_data', array( $this, 'pre_save_post' ), '99', 2 );
-			add_action( 'save_post', array( $this, 'save_post' ) );
-
-			add_filter( 'post_type_link', array( $this, 'jt_link' ), 10, 3 );
-			add_filter( 'term_link', array( $this, 'jt_season_link' ), 10, 3 );
+			add_filter( 'post_type_link', array($this, 'jt_link'), 10, 3 );
 			add_rewrite_rule(
-				self::SLUG . '/([^/]+)/([^/]+)-([0-9]+)?$', 'index.php?post_type=' . self::POST_TYPE . '&name=$matches[1]-$matches[2]-$matches[3]', 'top'
+				self::SLUG . '/([^/]+)/([^/]+)-([0-9]+)/?$', 'index.php?post_type=' . self::POST_TYPE . '&name=$matches[1]-$matches[2]-$matches[3]', 'top'
 			);
 
 			$this->create_taxonomies();
 			$this->create_post_type();
-			add_rewrite_tag( '%jt_season%', '(.*saison.*)' );
-		}
 
-		public function handle_jt_query( WP_Query $query )
-		{
-			if ( $query->is_main_query() && !is_admin() ) {
-				//$query->set('numberposts', 1);
-				if ( isset( $query->query_vars['jt_season'] ) && isset( $query->query_vars['jt_type'] ) && isset( $query->query_vars['jt_n'] ) ) {
-					$query->set( 'post_type', self::POST_TYPE );
-					//$query->set( 'post_name', $query->query_vars['jt_season'] . '-' . $query->query_vars['jt_type'] . '-' . $query->query_vars['jt_n'] );
-
-					/* $query->set( 'tax_query', array(
-					  array(
-					  'taxonomy' => 'tvj_jt_season',
-					  'field' => 'slug',
-					  'terms' => $query->query_vars['jt_season'],
-					  ),
-					  ) );
-
-					  if ( isset( $query->query_vars['jt_number'] ) ) {
-					  //$query->set( 'meta_key', 'tvj_jt_n' );
-					  //$query->set( 'meta_value', $query->query_vars['jt_number'] );
-					  $query->set( 'meta_query', array(
-					  array(
-					  'key' => 'tvj_jt_n',
-					  'value' => $query->query_vars['jt_number'],
-					  'type' => 'NUMERIC',
-					  'compare' => '='
-					  )
-					  ) );
-					  } */
-				}
-			}
-			return $query;
+			add_filter( 'fb_meta_tags', array($this, 'facebook_og_metas') );
 		}
 
 		public function admin_init()
 		{
-			add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
+			add_action( 'add_meta_boxes', array($this, 'add_meta_boxes') );
+		}
+
+		public function facebook_og_metas( $metas )
+		{
+			global $post;
+			if ( $post && $post->post_type == self::POST_TYPE ) {
+				$metas['http://ogp.me/ns#type'] = 'video.episode';
+
+				$videos = array();
+				$youtube = get_post_meta( $post->ID, self::POST_TYPE . '_youtube', true );
+				$dailymotion = get_post_meta( $post->ID, self::POST_TYPE . '_dailymotion', true );
+				if ($youtube) {
+					preg_match('#https?:\/\/www\.youtube\.com\/watch\?v\=(.*)#', $youtube, $matches);
+					$videos[] = array(
+						'url' => 'http://www.youtube.com/embed/' . $matches[1] . '?autoplay=1&rel=0',
+						'secure_url' => 'https://www.youtube.com/embed/' . $matches[1] . '?autoplay=1&rel=0',
+						'type' => 'text/html',
+					);
+					$videos[] = array(
+						'url' => 'http://www.youtube.com/v/' . $matches[1] . '?autohide=1&amp;version=31',
+						'secure_url' => 'https://www.youtube.com/v/' . $matches[1] . '?autohide=1&amp;version=31',
+						'type' => 'application/x-shockwave-flash',
+					);
+					$metas['http://ogp.me/ns#image'] = 'http://img.youtube.com/vi/' . $matches[1] . '/sddefault.jpg';
+				}	
+
+				if ($dailymotion) {
+					preg_match('#https?:\/\/www\.dailymotion\.com\/video\/([^_]+).*#', $dailymotion, $matches);
+					$videos[] = array(
+						'url' => 'http://www.dailymotion.com/embed/video/' . $matches[1],
+						'secure_url' => 'https://www.dailymotion.com/embed/video/' . $matches[1],
+						'type' => 'text/html',
+					);
+					$videos[] = array(
+						'url' => 'http://www.dailymotion.com/swf/video/' . $matches[1] . '?autoPlay=1',
+						'secure_url' => 'https://www.dailymotion.com/swf/video/' . $matches[1] . '?autoPlay=1',
+						'type' => 'application/x-shockwave-flash',
+					);
+					$metas['http://ogp.me/ns#image'] = 'http://www.dailymotion.com/thumbnail/video/' . $matches[1];
+				}
+
+				if (!empty($videos)) {
+					$metas['http://ogp.me/ns#video'] = $videos;
+				}
+			}
+
+			return $metas;
 		}
 
 		public function create_post_type()
 		{
 			register_post_type( self::POST_TYPE, array(
 				'label' => __( 'JT', 'tvjussieu' ),
-				'description' => __( 'A JT published by TV Jussieu', 'tvjussieu' ),
+				'description' => __( 'Un JT de TV Jussieu', 'tvjussieu' ),
 				'labels' => array(
 					'name' => __( 'JTs', 'tvjussieu' ),
 					'singular_name' => __( 'JT', 'tvjussieu' ),
 					'menu_name' => __( 'JTs', 'tvjussieu' ),
 					//'parent_item_colon'   => __( 'Parent Item:', 'tvjussieu' ),
-					'all_items' => __( 'All JTs', 'tvjussieu' ),
-					//'view_item'           => __( 'View Item', 'tvjussieu' ),
-					'add_new_item' => __( 'Add a new JT', 'tvjussieu' ),
-					'add_new' => __( 'Add a JT', 'tvjussieu' ),
-				//'edit_item'           => __( 'Edit Item', 'tvjussieu' ),
+					'all_items' => __( 'Tous les JTs', 'tvjussieu' ),
+					'view_item'           => __( 'Afficher le JT', 'tvjussieu' ),
+					'add_new_item' => __( 'Ajouter un nouveau JT', 'tvjussieu' ),
+					'add_new' => __( 'Ajouter un JT', 'tvjussieu' ),
+				'edit_item'           => __( 'Modifier le JT', 'tvjussieu' ),
 				//'update_item'         => __( 'Update Item', 'tvjussieu' ),
 				//'search_items'        => __( 'Search Item', 'tvjussieu' ),
 				//'not_found'           => __( 'Not found', 'tvjussieu' ),
@@ -125,36 +130,27 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 			) );
 		}
 
-		public function add_meta_boxes()
+		public function jt_link( $link, $post = 0 )
 		{
-			add_meta_box(
-				self::POST_TYPE . '_meta_box', __( 'JT detail', 'tvjussieu' ), array( $this, 'add_detail_meta_box' ), self::POST_TYPE
-			);
-		}
-
-		public function add_detail_meta_box( $post )
-		{
-			$all_seasons = get_terms( self::POST_TYPE . '_season', array( 'hide_empty' => false ) );
-			$current_seasons = get_the_terms( $post->ID, self::POST_TYPE . '_season' );
-			if ( !is_wp_error( $current_seasons ) && !empty( $current_seasons ) && is_object( reset( $current_seasons ) ) ) {
-				$current_season = reset( $current_seasons )->slug;
-			} else {
-				$current_season = 'hors-saison';
+			if ( !$post instanceof WP_Post || $post->post_type !== self::POST_TYPE ) {
+				return $link;
 			}
 
-			$all_types = get_terms( self::POST_TYPE . '_type', array( 'hide_empty' => false ) );
-			$current_types = get_the_terms( $post->ID, self::POST_TYPE . '_type' );
-			if ( !is_wp_error( $current_types ) && !empty( $current_types ) && is_object( reset( $current_types ) ) ) {
-				$current_type = reset( $current_types )->slug;
-			} else {
-				$current_type = 'jt';
+			$types = get_the_terms( $post->ID, self::POST_TYPE . '_type' );
+			$type = 'jt';
+			if ( !is_wp_error( $types ) && !empty( $types ) && is_object( reset( $types ) ) ) {
+				$type = reset( $types )->slug;
+			}
+
+			$seasons = get_the_terms( $post->ID, self::POST_TYPE . '_season' );
+			$season = 'hors-saison';
+			if ( !is_wp_error( $seasons ) && !empty( $seasons ) && is_object( reset( $seasons ) ) ) {
+				$season = reset( $seasons )->slug;
 			}
 
 			$n = get_post_meta( $post->ID, 'jt_n', true );
-			$dailymotion = get_post_meta( $post->ID, 'jt_dailymotion', true );
-			$youtube = get_post_meta( $post->ID, 'jt_youtube', true );
 
-			include( get_stylesheet_directory() . '/partials/detail_meta_box-' . self::POST_TYPE . '.php');
+			return home_url( self::SLUG . '/' . $season . '/' . $type . '-' . $n .'/' );
 		}
 
 		public function pre_save_post( $data, $postarr )
@@ -193,6 +189,38 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 			update_post_meta( $post_id, 'jt_youtube', $_POST['jt_youtube'] );
 		}
 
+		public function add_meta_boxes()
+		{
+			add_meta_box(
+				self::POST_TYPE . '_meta_box', __( 'Détails du JT', 'tvjussieu' ), array($this, 'add_detail_meta_box'), self::POST_TYPE
+			);
+		}
+
+		public function add_detail_meta_box( $post )
+		{
+			$all_seasons = get_terms( self::POST_TYPE . '_season', array('hide_empty' => false) );
+			$season = get_the_terms( $post->ID, self::POST_TYPE . '_season' );
+			if ( !is_wp_error( $season ) && !empty( $season ) && is_object( reset( $season ) ) ) {
+				$season = reset( $season )->slug;
+			} else {
+				$season = 'hors-saison';
+			}
+
+			$all_types = get_terms( self::POST_TYPE . '_type', array('hide_empty' => false) );
+			$type = get_the_terms( $post->ID, self::POST_TYPE . '_type' );
+			if ( !is_wp_error( $type ) && !empty( $type ) && is_object( reset( $type ) ) ) {
+				$type = reset( $type )->slug;
+			} else {
+				$type = 'jt';
+			}
+
+			$n = get_post_meta( $post->ID, self::POST_TYPE . '_n', true );
+			$dailymotion = get_post_meta( $post->ID, self::POST_TYPE . '_dailymotion', true );
+			$youtube = get_post_meta( $post->ID, self::POST_TYPE . '_youtube', true );
+
+			include( get_stylesheet_directory() . '/partials/detail_meta_box-' . self::POST_TYPE . '.php');
+		}
+
 		public function create_taxonomies()
 		{
 			$this->create_season_taxonomy();
@@ -203,15 +231,15 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 		{
 			register_taxonomy( self::POST_TYPE . '_season', self::POST_TYPE, array(
 				'labels' => array(
-					'name' => __( 'Seasons', 'tvjussieu' ),
-					'singular_name' => __( 'Season', 'tvjussieu' ),
-					'menu_name' => __( 'Seasons', 'tvjussieu' ),
+					'name' => __( 'Saisons', 'tvjussieu' ),
+					'singular_name' => __( 'Saison', 'tvjussieu' ),
+					'menu_name' => __( 'Saisons', 'tvjussieu' ),
 					//'all_items'                  => __( 'All Items', 'tvjussieu' ),
 					//'parent_item'                => __( 'Parent Item', 'tvjussieu' ),
 					//'parent_item_colon'          => __( 'Parent Item:', 'tvjussieu' ),
-					'new_item_name' => __( 'New season', 'tvjussieu' ),
-					'add_new_item' => __( 'Add a season', 'tvjussieu' ),
-				//'edit_item'                  => __( 'Edit Item', 'tvjussieu' ),
+					'new_item_name' => __( 'Nouvelle saison', 'tvjussieu' ),
+					'add_new_item' => __( 'Ajouter une saison', 'tvjussieu' ),
+				'edit_item'                  => __( 'Modifier la saison', 'tvjussieu' ),
 				//'update_item'                => __( 'Update Item', 'tvjussieu' ),
 				//'separate_items_with_commas' => __( 'Separate items with commas', 'tvjussieu' ),
 				//'search_items'               => __( 'Search Items', 'tvjussieu' ),
@@ -225,23 +253,33 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 				'show_admin_column' => true,
 				'show_in_nav_menus' => true,
 				'show_tagcloud' => true,
-				//'rewrite' => true,
 				'rewrite' => array(
-					'slug' => 'jt', // self::POST_TYPE, // . '/%' . self::POST_TYPE . '_season%',
+					'slug' => self::SLUG,
 					'with_front' => true,
-				//'hierarchical' => true,
+					'hierarchical' => false,
 				),
-				'meta_box_cb' => false, //array($this, 'add_tv_show_meta_boxes')
+				'meta_box_cb' => false,
 			) );
+
+			//add_filter( 'term_link', array( $this, 'jt_season_link' ), 10, 3 );
+			add_rewrite_tag( '%jt_season%', '(.*saison.*)' );
 		}
 
+		/* public function jt_season_link( $url, $term, $taxonomy )
+		  {
+		  if ( $taxonomy === self::POST_TYPE . '_season' ) {
+		  return home_url( self::SLUG . '/' . $term->slug );
+		  }
+
+		  return $url;
+		  } */
 		protected function create_type_taxonomy()
 		{
 			register_taxonomy( self::POST_TYPE . '_type', self::POST_TYPE, array(
 				'labels' => array(
-					'name' => __( 'Types', 'tvjussieu' ),
-					'singular_name' => __( 'Type', 'tvjussieu' ),
-					'menu_name' => __( 'Types', 'tvjussieu' ),
+					'name' => __( 'Types de JT', 'tvjussieu' ),
+					'singular_name' => __( 'Type de JT', 'tvjussieu' ),
+					'menu_name' => __( 'Types de JT', 'tvjussieu' ),
 				//'all_items'                  => __( 'All Items', 'tvjussieu' ),
 				//'parent_item'                => __( 'Parent Item', 'tvjussieu' ),
 				//'parent_item_colon'          => __( 'Parent Item:', 'tvjussieu' ),
@@ -261,53 +299,15 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 				'show_admin_column' => true,
 				'show_in_nav_menus' => true,
 				'show_tagcloud' => true,
-				//'rewrite' => true,
 				'rewrite' => array(
-					'slug' => 'video',
+					'slug' => 'jt-type',
 					'with_front' => true,
-					'hierarchical' => true,
+					'hierarchical' => false,
 				),
-				'meta_box_cb' => false, //array($this, 'add_tv_show_meta_boxes')
+				'meta_box_cb' => false,
 			) );
 		}
 
-		public function jt_link( $link, $post = 0 )
-		{
-			if ( $post->post_type == self::POST_TYPE ) {
-				$types = get_the_terms( $post->ID, self::POST_TYPE . '_type' );
-				if ( !is_wp_error( $types ) && !empty( $types ) && is_object( reset( $types ) ) ) {
-					$type = reset( $types )->slug;
-				} else {
-					$type = 'jt';
-				}
-
-				$seasons = get_the_terms( $post->ID, self::POST_TYPE . '_season' );
-				if ( !is_wp_error( $seasons ) && !empty( $seasons ) && is_object( reset( $seasons ) ) ) {
-					$season = reset( $seasons )->slug;
-				} else {
-					$season = 'hors-saison';
-				}
-
-				$n = get_post_meta( $post->ID, 'jt_n', true );
-
-				$link = home_url( self::SLUG . '/' . $season . '/' . $type . '-' . $n );
-			}
-			return $link;
-		}
-
-		public function jt_season_link( $url, $term, $taxonomy )
-		{
-			if ( $taxonomy === self::POST_TYPE . '_season' ) {
-				return home_url( self::SLUG . '/' . $term->slug );
-			}
-
-			return $url;
-		}
-
-		/* public function add_tv_show_meta_boxes($post)
-		  {
-		  include(dirname(__FILE__) . '/../templates/' . self::POST_TYPE . '_meta_box.php');
-		  } */
 	}
 
 }

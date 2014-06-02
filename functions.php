@@ -24,6 +24,17 @@ if ( !class_exists( 'TVJussieu' ) ) {
 			if ( class_exists( 'TVJussieu_Staff' ) ) {
 				$tvj_staff = new TVJussieu_Staff();
 			}
+
+			add_filter( 'fb_meta_tags', array($this, 'facebook_og_metas') );
+		}
+
+		public function facebook_og_metas( $metas )
+		{
+			if ( is_front_page() ) {
+				$metas['http://ogp.me/ns#type'] = 'video.tv_show';
+			}
+
+			return $metas;
 		}
 
 		/**
@@ -47,8 +58,8 @@ if ( !class_exists( 'TVJussieu' ) ) {
 }
 
 if ( class_exists( 'TVJussieu' ) ) {
-	register_activation_hook( __FILE__, array( 'TVJussieu', 'activate' ) );
-	register_deactivation_hook( __FILE__, array( 'TVJussieu', 'deactivate' ) );
+	register_activation_hook( __FILE__, array('TVJussieu', 'activate') );
+	register_deactivation_hook( __FILE__, array('TVJussieu', 'deactivate') );
 
 	$tvj = new TVJussieu();
 }

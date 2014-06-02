@@ -9,8 +9,8 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 
 		public function __construct()
 		{
-			add_action( 'init', array( $this, 'init' ) );
-			add_action( 'admin_init', array( $this, 'admin_init' ) );
+			add_action( 'init', array($this, 'init') );
+			add_action( 'admin_init', array($this, 'admin_init') );
 		}
 
 		public function init()
@@ -18,16 +18,16 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 			//add_rewrite_tag('%jt%','(jt)','post_type=');
 			//add_rewrite_tag( '%jt_season%', '(saison-[0-9]+)' );
 			//add_rewrite_tag( '%jt_n%', '([0-9]+)' );
-			//add_permastruct( 'tvj_staff_period', self::SLUG . '/%staff_period%' );
+			//add_permastruct( 'tvj_staff_promo', self::SLUG . '/%staff_promo%' );
 			//add_permastruct('tvj_jt_archive', self::SLUG . '/%year%/%monthnum%/%day%');
 			//add_permastruct( 'tvj_jt_season', self::SLUG . '/%jt_season%' );
 			//add_permastruct( 'tvj_jt_season', self::SLUG . '/%jt_season%/%jt_type%-%jt_n%' );
 			//add_action( 'pre_get_posts', array( $this, 'handle_jt_query' ) );
 
-			add_filter( 'wp_insert_post_data', array( $this, 'pre_save_post' ), '99', 2 );
-			add_action( 'save_post', array( $this, 'save_post' ) );
+			add_filter( 'wp_insert_post_data', array($this, 'pre_save_post'), '99', 2 );
+			add_action( 'save_post', array($this, 'save_post') );
 
-			add_filter( 'post_type_link', array( $this, 'staff_link' ), 10, 3 );
+			add_filter( 'post_type_link', array($this, 'staff_link'), 10, 3 );
 			//add_filter( 'term_link', array( $this, 'jt_season_link' ), 10, 3 );
 			add_rewrite_rule(
 				self::SLUG . '/(([^/0-9]+)\-([^/0-9]+))/?$', 'index.php?post_type=' . self::POST_TYPE . '&name=$matches[1]', 'top'
@@ -35,62 +35,29 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 
 			$this->create_taxonomies();
 			$this->create_post_type();
-			add_rewrite_tag( '%staff_period%', '([0-9]+\-[0-9]+)' );
-		}
-
-		public function handle_jt_query( WP_Query $query )
-		{
-			if ( $query->is_main_query() && !is_admin() ) {
-				//$query->set('numberposts', 1);
-				if ( isset( $query->query_vars['jt_season'] ) && isset( $query->query_vars['jt_type'] ) && isset( $query->query_vars['jt_n'] ) ) {
-					$query->set( 'post_type', self::POST_TYPE );
-					//$query->set( 'post_name', $query->query_vars['jt_season'] . '-' . $query->query_vars['jt_type'] . '-' . $query->query_vars['jt_n'] );
-
-					/* $query->set( 'tax_query', array(
-					  array(
-					  'taxonomy' => 'tvj_jt_season',
-					  'field' => 'slug',
-					  'terms' => $query->query_vars['jt_season'],
-					  ),
-					  ) );
-
-					  if ( isset( $query->query_vars['jt_number'] ) ) {
-					  //$query->set( 'meta_key', 'tvj_jt_n' );
-					  //$query->set( 'meta_value', $query->query_vars['jt_number'] );
-					  $query->set( 'meta_query', array(
-					  array(
-					  'key' => 'tvj_jt_n',
-					  'value' => $query->query_vars['jt_number'],
-					  'type' => 'NUMERIC',
-					  'compare' => '='
-					  )
-					  ) );
-					  } */
-				}
-			}
-			return $query;
+			add_rewrite_tag( '%staff_promo%', '([0-9]+\-[0-9]+)' );
 		}
 
 		public function admin_init()
 		{
-			add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) );
+			add_action( 'add_meta_boxes', array($this, 'add_meta_boxes') );
 		}
 
 		public function create_post_type()
 		{
 			register_post_type( self::POST_TYPE, array(
 				'label' => __( 'Staff', 'tvjussieu' ),
-				'description' => __( 'A Staff in TV Jussieu', 'tvjussieu' ),
+				'description' => __( 'Un staff de TV Jussieu', 'tvjussieu' ),
 				'labels' => array(
 					'name' => __( 'Staffs', 'tvjussieu' ),
 					'singular_name' => __( 'Staff', 'tvjussieu' ),
 					'menu_name' => __( 'Staff', 'tvjussieu' ),
 					//'parent_item_colon'   => __( 'Parent Item:', 'tvjussieu' ),
-					'all_items' => __( 'All Staffs', 'tvjussieu' ),
-					//'view_item'           => __( 'View Item', 'tvjussieu' ),
-					'add_new_item' => __( 'Add a new Staff', 'tvjussieu' ),
-					'add_new' => __( 'Add a Staff', 'tvjussieu' ),
-				//'edit_item'           => __( 'Edit Item', 'tvjussieu' ),
+					'all_items' => __( 'Tous les staffs', 'tvjussieu' ),
+					'view_item'           => __( 'Voir le staff', 'tvjussieu' ),
+					'add_new_item' => __( 'Ajouter un nouveau staff', 'tvjussieu' ),
+					'add_new' => __( 'Ajouter un staff', 'tvjussieu' ),
+				'edit_item'           => __( 'Modifier le staff', 'tvjussieu' ),
 				//'update_item'         => __( 'Update Item', 'tvjussieu' ),
 				//'search_items'        => __( 'Search Item', 'tvjussieu' ),
 				//'not_found'           => __( 'Not found', 'tvjussieu' ),
@@ -116,13 +83,12 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 				'has_archive' => true,
 				'exclude_from_search' => false,
 				'publicly_queryable' => true,
-				'rewrite' => true,
-				/* 'rewrite' => array(
+				'rewrite' => array(
 				  'slug' => self::SLUG,
 				  'with_front' => true,
 				  'pages' => true,
 				  'feeds' => true,
-				  ), */
+				),
 				'capability_type' => 'post',
 			) );
 		}
@@ -130,20 +96,20 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 		public function add_meta_boxes()
 		{
 			add_meta_box(
-				self::POST_TYPE . '_meta_box', __( 'Staff detail', 'tvjussieu' ), array( $this, 'add_detail_meta_box' ), self::POST_TYPE
+				self::POST_TYPE . '_meta_box', __( 'Détail du staff', 'tvjussieu' ), array($this, 'add_detail_meta_box'), self::POST_TYPE
 			);
 		}
 
 		public function add_detail_meta_box( $post )
 		{
-			$all_periods = get_terms( self::POST_TYPE . '_period', array( 'hide_empty' => false ) );
-			$current_periods = get_the_terms( $post->ID, self::POST_TYPE . '_period' );
-			if ( !is_wp_error( $current_periods ) && !empty( $current_periods ) && is_object( reset( $current_periods ) ) ) {
-				$current_periods = array_map( function($v) {
+			$all_promos = get_terms( self::POST_TYPE . '_promo', array('hide_empty' => false) );
+			$current_promos = get_the_terms( $post->ID, self::POST_TYPE . '_promo' );
+			if ( !is_wp_error( $current_promos ) && !empty( $current_promos ) && is_object( reset( $current_promos ) ) ) {
+				$current_promos = array_map( function($v) {
 					return $v->slug;
-				}, $current_periods );
+				}, $current_promos );
 			} else {
-				$current_periods = array();
+				$current_promos = array();
 			}
 
 			$firstname = get_post_meta( $post->ID, 'staff_firstname', true );
@@ -175,9 +141,9 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 				return;
 			}
 
-			if ( isset( $_POST[self::POST_TYPE . '_period'] ) ) {
-				wp_delete_object_term_relationships( $post_id, self::POST_TYPE . '_period' );
-				wp_set_post_terms( $post_id, implode( ',', $_POST[self::POST_TYPE . '_period'] ), self::POST_TYPE . '_period' );
+			if ( isset( $_POST[self::POST_TYPE . '_promo'] ) ) {
+				wp_delete_object_term_relationships( $post_id, self::POST_TYPE . '_promo' );
+				wp_set_post_terms( $post_id, implode( ',', $_POST[self::POST_TYPE . '_promo'] ), self::POST_TYPE . '_promo' );
 			}
 
 			update_post_meta( $post_id, 'staff_firstname', $_POST['staff_firstname'] );
@@ -188,23 +154,23 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 
 		public function create_taxonomies()
 		{
-			$this->create_period_taxonomy();
+			$this->create_promo_taxonomy();
 			//$this->create_type_taxonomy();
 		}
 
-		protected function create_period_taxonomy()
+		protected function create_promo_taxonomy()
 		{
-			register_taxonomy( self::POST_TYPE . '_period', self::POST_TYPE, array(
+			register_taxonomy( self::POST_TYPE . '_promo', self::POST_TYPE, array(
 				'labels' => array(
-					'name' => __( 'Periods', 'tvjussieu' ),
-					'singular_name' => __( 'Period', 'tvjussieu' ),
-					'menu_name' => __( 'Period', 'tvjussieu' ),
-					//'all_items'                  => __( 'All Items', 'tvjussieu' ),
+					'name' => __( 'Promos', 'tvjussieu' ),
+					'singular_name' => __( 'Promo', 'tvjussieu' ),
+					'menu_name' => __( 'Les promos', 'tvjussieu' ),
+					'all_items'                  => __( 'Toutes les promos', 'tvjussieu' ),
 					//'parent_item'                => __( 'Parent Item', 'tvjussieu' ),
 					//'parent_item_colon'          => __( 'Parent Item:', 'tvjussieu' ),
-					'new_item_name' => __( 'New period', 'tvjussieu' ),
-					'add_new_item' => __( 'Add a period', 'tvjussieu' ),
-				//'edit_item'                  => __( 'Edit Item', 'tvjussieu' ),
+					'new_item_name' => __( 'Nouvelle promo', 'tvjussieu' ),
+					'add_new_item' => __( 'Ajouter une promo', 'tvjussieu' ),
+					'edit_item' => __( 'Modifier la promo', 'tvjussieu' ),
 				//'update_item'                => __( 'Update Item', 'tvjussieu' ),
 				//'separate_items_with_commas' => __( 'Separate items with commas', 'tvjussieu' ),
 				//'search_items'               => __( 'Search Items', 'tvjussieu' ),
@@ -218,47 +184,10 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 				'show_admin_column' => true,
 				'show_in_nav_menus' => true,
 				'show_tagcloud' => true,
-				//'rewrite' => true,
 				'rewrite' => array(
-					'slug' => 'staff', // self::POST_TYPE, // . '/%' . self::POST_TYPE . '_season%',
+					'slug' => self::POST_TYPE,
 					'with_front' => true,
 				//'hierarchical' => true,
-				),
-				'meta_box_cb' => false, //array($this, 'add_tv_show_meta_boxes')
-			) );
-		}
-
-		protected function create_type_taxonomy()
-		{
-			register_taxonomy( self::POST_TYPE . '_type', self::POST_TYPE, array(
-				'labels' => array(
-					'name' => __( 'Types', 'tvjussieu' ),
-					'singular_name' => __( 'Type', 'tvjussieu' ),
-					'menu_name' => __( 'Types', 'tvjussieu' ),
-				//'all_items'                  => __( 'All Items', 'tvjussieu' ),
-				//'parent_item'                => __( 'Parent Item', 'tvjussieu' ),
-				//'parent_item_colon'          => __( 'Parent Item:', 'tvjussieu' ),
-				//'new_item_name' => __( 'New type', 'tvjussieu' ),
-				//'add_new_item' => __( 'Add a type', 'tvjussieu' ),
-				//'edit_item'                  => __( 'Edit Item', 'tvjussieu' ),
-				//'update_item'                => __( 'Update Item', 'tvjussieu' ),
-				//'separate_items_with_commas' => __( 'Separate items with commas', 'tvjussieu' ),
-				//'search_items'               => __( 'Search Items', 'tvjussieu' ),
-				//'add_or_remove_items'        => __( 'Add or remove items', 'tvjussieu' ),
-				//'choose_from_most_used'      => __( 'Choose from the most used items', 'tvjussieu' ),
-				//'not_found'                  => __( 'Not Found', 'tvjussieu' ),
-				),
-				'hierarchical' => false,
-				'public' => true,
-				'show_ui' => true,
-				'show_admin_column' => true,
-				'show_in_nav_menus' => true,
-				'show_tagcloud' => true,
-				//'rewrite' => true,
-				'rewrite' => array(
-					'slug' => 'video',
-					'with_front' => true,
-					'hierarchical' => true,
 				),
 				'meta_box_cb' => false, //array($this, 'add_tv_show_meta_boxes')
 			) );
@@ -296,6 +225,7 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 
 			return $url;
 		}
+
 	}
 
 }
