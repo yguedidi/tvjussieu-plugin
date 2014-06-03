@@ -162,7 +162,7 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 						'type' => 'application/x-shockwave-flash',
 					);
 					$metas['http://ogp.me/ns#image'] = 'http://img.youtube.com/vi/' . $matches[1] . '/sddefault.jpg';
-				}	
+				}
 
 				if ($dailymotion) {
 					preg_match('#^https?:\/\/www\.dailymotion\.com\/video\/([^_]+).*#', $dailymotion, $matches);
@@ -266,7 +266,7 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 				return $data;
 			}
 
-			$data['post_name'] = $postarr['jt_season'] . '-' . $postarr['jt_type'] . '-' . $postarr['jt_n'];
+			$data['post_name'] = $postarr['jt_season'] . '-' . $postarr['jt_type'] . '-' . ( (int) $postarr['jt_n'] );
 
 			return $data;
 		}
