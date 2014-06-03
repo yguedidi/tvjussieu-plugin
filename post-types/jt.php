@@ -150,7 +150,7 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 				$youtube = get_post_meta( $post->ID, self::POST_TYPE . '_youtube', true );
 				$dailymotion = get_post_meta( $post->ID, self::POST_TYPE . '_dailymotion', true );
 				if ($youtube) {
-					preg_match('#https?:\/\/www\.youtube\.com\/watch\?v\=(.*)#', $youtube, $matches);
+					preg_match('#^https?:\/\/www\.youtube\.com\/watch\?v\=(.*)#', $youtube, $matches);
 					$videos[] = array(
 						'url' => 'http://www.youtube.com/embed/' . $matches[1] . '?autoplay=1&rel=0',
 						'secure_url' => 'https://www.youtube.com/embed/' . $matches[1] . '?autoplay=1&rel=0',
@@ -165,7 +165,7 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 				}	
 
 				if ($dailymotion) {
-					preg_match('#https?:\/\/www\.dailymotion\.com\/video\/([^_]+).*#', $dailymotion, $matches);
+					preg_match('#^https?:\/\/www\.dailymotion\.com\/video\/([^_]+).*#', $dailymotion, $matches);
 					$videos[] = array(
 						'url' => 'http://www.dailymotion.com/embed/video/' . $matches[1],
 						'secure_url' => 'https://www.dailymotion.com/embed/video/' . $matches[1],
