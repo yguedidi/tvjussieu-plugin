@@ -25,6 +25,8 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 			$this->create_post_type();
 
 			add_filter( 'fb_meta_tags', array($this, 'facebook_og_metas') );
+
+			add_filter( 'the_title', array( $this, 'jt_title' ), 10, 2 );
 		}
 
 		public function admin_init()
@@ -101,6 +103,41 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 		public function resize_jt_name_column()
 		{
 			echo '<style>.widefat th.column-jt_name { width: 200px; }</style>';
+		}
+
+		public function jt_title( $title, $post_id = 0 )
+		{
+			$post = get_post($post_id);
+			if ( !in_the_loop() || self::POST_TYPE != $post->post_type ) {
+				return $title;
+			}
+
+			$title = $post->post_title;
+			if ( !empty($title) ) {
+				$title = ' - ' . $title;
+			}
+
+			$n = get_post_meta( $post->ID, 'jt_n', true );
+
+			$types = get_the_terms( $post->ID, self::POST_TYPE . '_type' );
+			if ( !is_wp_error( $types ) && !empty( $types ) && is_object( reset( $types ) ) ) {
+				$type = reset( $types )->name;
+			} else {
+				$type = 'jt';
+			}
+			$title = $type .= ' n°' . $n . $title;
+
+			if ( is_singular(self::POST_TYPE) || is_post_type_archive(self::POST_TYPE) ) {
+				$seasons = get_the_terms( $post->ID, self::POST_TYPE . '_season' );
+				if ( !is_wp_error( $seasons ) && !empty( $seasons ) && is_object( reset( $seasons ) ) ) {
+					$season = reset( $seasons )->name;
+				} else {
+					$season = 'hors-saison';
+				}
+				$title = $season . ' - ' . $title;
+			}
+
+			return $title;
 		}
 
 		public function facebook_og_metas( $metas )
