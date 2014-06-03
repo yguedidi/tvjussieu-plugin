@@ -15,27 +15,16 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 
 		public function init()
 		{
-			//add_rewrite_tag('%jt%','(jt)','post_type=');
-			//add_rewrite_tag( '%jt_season%', '(saison-[0-9]+)' );
-			//add_rewrite_tag( '%jt_n%', '([0-9]+)' );
-			//add_permastruct( 'tvj_staff_promo', self::SLUG . '/%staff_promo%' );
-			//add_permastruct('tvj_jt_archive', self::SLUG . '/%year%/%monthnum%/%day%');
-			//add_permastruct( 'tvj_jt_season', self::SLUG . '/%jt_season%' );
-			//add_permastruct( 'tvj_jt_season', self::SLUG . '/%jt_season%/%jt_type%-%jt_n%' );
-			//add_action( 'pre_get_posts', array( $this, 'handle_jt_query' ) );
-
 			add_filter( 'wp_insert_post_data', array($this, 'pre_save_post'), '99', 2 );
 			add_action( 'save_post', array($this, 'save_post') );
 
 			add_filter( 'post_type_link', array($this, 'staff_link'), 10, 3 );
-			//add_filter( 'term_link', array( $this, 'jt_season_link' ), 10, 3 );
 			add_rewrite_rule(
 				self::SLUG . '/(([^/0-9]+)\-([^/0-9]+))/?$', 'index.php?post_type=' . self::POST_TYPE . '&name=$matches[1]', 'top'
 			);
 
 			$this->create_taxonomies();
 			$this->create_post_type();
-			add_rewrite_tag( '%staff_promo%', '([0-9]+\-[0-9]+)' );
 		}
 
 		public function admin_init()
@@ -155,7 +144,6 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 		public function create_taxonomies()
 		{
 			$this->create_promo_taxonomy();
-			//$this->create_type_taxonomy();
 		}
 
 		protected function create_promo_taxonomy()
@@ -191,41 +179,15 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 				),
 				'meta_box_cb' => false, //array($this, 'add_tv_show_meta_boxes')
 			) );
+			add_rewrite_tag( '%staff_promo%', '([0-9]+\-[0-9]+)' );
 		}
 
 		public function staff_link( $link, $post = 0 )
 		{
 			if ( $post->post_type == self::POST_TYPE ) {
-				/* $types = get_the_terms( $post->ID, self::POST_TYPE . '_type' );
-				  if ( !is_wp_error( $types ) && !empty( $types ) && is_object( reset( $types ) ) ) {
-				  $type = reset( $types )->slug;
-				  } else {
-				  $type = 'jt';
-				  }
-
-				  $seasons = get_the_terms( $post->ID, self::POST_TYPE . '_season' );
-				  if ( !is_wp_error( $seasons ) && !empty( $seasons ) && is_object( reset( $seasons ) ) ) {
-				  $season = reset( $seasons )->slug;
-				  } else {
-				  $season = 'no-season';
-				  }
-
-				  $n = get_post_meta( $post->ID, 'jt_n', true ); */
-
 				$link = home_url( self::SLUG . '/' . $post->post_name );
 			}
 			return $link;
 		}
-
-		public function jt_season_link( $url, $term, $taxonomy )
-		{
-			if ( $taxonomy === self::POST_TYPE . '_season' ) {
-				return home_url( self::SLUG . '/' . $term->slug );
-			}
-
-			return $url;
-		}
-
 	}
-
 }

@@ -54,8 +54,6 @@
 		if ( $youtube = get_post_meta( get_the_ID(), 'jt_youtube', true ) ) :
 			echo wp_oembed_get( $youtube );
 		elseif ( $dailymotion = get_post_meta( get_the_ID(), 'jt_dailymotion', true ) ):
-			//preg_match('#https?:\/\/www\.dailymotion\.com\/video\/([^_]+).*#', $dailymotion, $matches);
-			//$code = $matches[1];
 			echo wp_oembed_get( $dailymotion );
 		endif;
 		?>
