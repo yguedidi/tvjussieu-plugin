@@ -24,13 +24,15 @@ get_header();
 
 		<?php if ( have_posts() ) : ?>
 
-			<?php if ( 0 ) : ?>
-				<header class="page-header">
-					<h1 class="page-title">
-						<?php _e( 'Saison', 'tvjussieu' ); ?>
-					</h1>
-				</header><!-- .page-header -->
-			<?php endif; ?>
+			<header class="page-header">
+				<h1 class="page-title">
+					<?php
+					global $wp_query;
+					$value = get_query_var($wp_query->query_vars['taxonomy']);
+					echo get_term_by('slug',$value,$wp_query->query_vars['taxonomy'])->name;
+					?>
+				</h1>
+			</header><!-- .page-header -->
 
 			<?php
 			// Start the Loop.
