@@ -294,6 +294,47 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 			update_post_meta( $post_id, 'jt_n', $_POST['jt_n'] );
 			update_post_meta( $post_id, 'jt_dailymotion', $_POST['jt_dailymotion'] );
 			update_post_meta( $post_id, 'jt_youtube', $_POST['jt_youtube'] );
+
+			if ( !has_post_thumbnail( $post_id ) ) {
+				$image_url = null;
+				if ( $_POST['jt_youtube'] ) {
+					preg_match('#^https?:\/\/www\.youtube\.com\/watch\?v\=(.*)#', $_POST['jt_youtube'], $matches);
+					$code = $matches[1];
+					$image_url = 'http://img.youtube.com/vi/' . $code . '/sddefault.jpg';
+				} elseif( $_POST['jt_dailymotion'] ) {
+					preg_match('#^https?:\/\/www\.dailymotion\.com\/video\/([^_]+).*#', $_POST['jt_dailymotion'], $matches);
+					$code = $matches[1];
+					$image_url = 'http://www.dailymotion.com/thumbnail/video/' . $code;
+				}
+
+				if ( $code ) {
+					$post = get_post( $post_id );
+					$upload_dir = wp_upload_dir();
+					$image_data = file_get_contents($image_url);
+					$filename   = $post->post_name . '.jpg';
+
+					if( wp_mkdir_p( $upload_dir['path'] ) ) {
+						$file = $upload_dir['path'] . '/' . $filename;
+					} else {
+						$file = $upload_dir['basedir'] . '/' . $filename;
+					}
+
+					file_put_contents( $file, $image_data );
+
+					$wp_filetype = wp_check_filetype( $filename, null );
+					$attachment = array(
+						'post_mime_type' => $wp_filetype['type'],
+						'post_title'     => sanitize_file_name( $filename ),
+						'post_content'   => '',
+						'post_status'    => 'inherit',
+					);
+					$attach_id = wp_insert_attachment( $attachment, $file, $post_id );
+					require_once( ABSPATH . 'wp-admin/includes/image.php' );
+					$attach_data = wp_generate_attachment_metadata( $attach_id, $file );
+					wp_update_attachment_metadata( $attach_id, $attach_data );
+					set_post_thumbnail( $post_id, $attach_id );
+				}
+			}
 		}
 
 		public function add_meta_boxes()
