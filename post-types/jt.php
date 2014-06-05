@@ -127,7 +127,7 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 			}
 			$title = $type .= ' n°' . $n . $title;
 
-			if ( is_singular(self::POST_TYPE) || is_post_type_archive(self::POST_TYPE) ) {
+			if ( is_singular(self::POST_TYPE) || is_post_type_archive(self::POST_TYPE) || is_admin() ) {
 				$seasons = get_the_terms( $post->ID, self::POST_TYPE . '_season' );
 				if ( !is_wp_error( $seasons ) && !empty( $seasons ) && is_object( reset( $seasons ) ) ) {
 					$season = reset( $seasons )->name;
