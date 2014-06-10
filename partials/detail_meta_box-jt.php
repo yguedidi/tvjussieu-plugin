@@ -9,12 +9,13 @@
 </p>
 <p><strong><?php _e( 'Saison', 'tvjussieu' ); ?></strong></p>
 <p>
+	<select name="jt_season">
 	<?php foreach ( $all_seasons as $s ): ?>
-		<label>
-			<input type="radio" name="jt_season" <?php checked( $s->slug, $season ); ?> value="<?php echo esc_attr( $s->slug ); ?>" />
+		<option <?php selected( $s->slug, $season ); ?> value="<?php echo esc_attr( $s->slug ); ?>" />
 			<?php echo $s->name; ?>
-		</label><br/>
+		</option>
 	<?php endforeach; ?>
+	</select>
 </p>
 <p><strong><?php _e( 'JT n°', 'tvjussieu' ); ?></strong></p>
 <p><input type="number" name="jt_n" value="<?php echo esc_attr( $n ); ?>" /></p>
