@@ -11,10 +11,10 @@
 ?>
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-	<?php twentyfourteen_post_thumbnail(); ?>
-
-	<?php if ( !is_front_page() ) : ?>
-		<header class="entry-header">
+	<header class="entry-header">
+		<?php if ( is_front_page() ) : $title = get_the_title(); ?>
+		<h1 class="entry-title">Dernier JT<?php echo $title ? ' : ' . $title : ''; ?></h1>
+		<?php else : ?>
 			<?php if ( in_array( 'category', get_object_taxonomies( get_post_type() ) ) && twentyfourteen_categorized_blog() ) : ?>
 				<div class="entry-meta">
 					<span class="cat-links"><?php echo get_the_category_list( _x( ', ', 'Used between list items, there is a space after the comma.', 'twentyfourteen' ) ); ?></span>
@@ -43,13 +43,10 @@
 				edit_post_link( __( 'Edit', 'twentyfourteen' ), '<span class="edit-link">', '</span>' );
 				?>
 			</div><!-- .entry-meta -->
-		</header><!-- .entry-header -->
-	<?php else : ?>
-		<div class="entry-summary">
-			<h3>Dernier JT</h3>
-		</div><!-- .entry-summary -->
-	<?php endif; ?>
-	<div class="entry-summary">
+		<?php endif; ?>
+	</header><!-- .entry-header -->
+	<div class="entry-content">
+	<?php if ( is_singular() ) :?>
 		<?php
 		if ( $youtube = get_post_meta( get_the_ID(), 'jt_youtube', true ) ) :
 			echo wp_oembed_get( $youtube );
@@ -57,8 +54,14 @@
 			echo wp_oembed_get( $dailymotion );
 		endif;
 		?>
-	</div><!-- .entry-video -->
-	<?php if ( is_search() || is_front_page() ) : ?>
+	<?php else : ?>
+		<a href="<?php the_permalink(); ?>">
+		<?php the_post_thumbnail(); ?>
+		</a>
+	<?php endif; // End is_singular() ?>
+	</div>
+
+	<?php if ( is_search() || is_front_page() || is_archive() ) : ?>
 		<div class="entry-summary">
 			<?php the_excerpt(); ?>
 		</div><!-- .entry-summary -->
