@@ -53,12 +53,14 @@
 		<?php
 		$firstname = get_post_meta( get_the_ID(), 'staff_firstname', true );
 		$lastname = get_post_meta( get_the_ID(), 'staff_lastname', true );
+		$nickname = get_post_meta( get_the_ID(), 'staff_nickname', true );
 		$role = get_post_meta( get_the_ID(), 'staff_role', true );
 		$facebook = get_post_meta( get_the_ID(), 'staff_facebook', true );
 		?>
 		<p>
 			Prénom : <?php echo $firstname; ?><br/>
 			Nom : <?php echo $lastname; ?><br/>
+			Surnom : <?php echo $nickname; ?><br/>
 			Rôle : <?php echo $role; ?><br/>
 			Présent(e) en : <?php echo get_the_term_list( get_the_ID(), 'staff_promo', '', ', ', '' ) ?><br/>
 			<a href="<?php echo $facebook; ?>">Aller sur son Facebook</a><br/>

@@ -2,6 +2,8 @@
 <p><input type="text" name="staff_firstname" value="<?php echo esc_attr( $firstname ); ?>" /></p>
 <p><strong><?php echo __( 'Nom', 'tvjussieu' ); ?></strong></p>
 <p><input type="text" name="staff_lastname" value="<?php echo esc_attr( $lastname ); ?>" /></p>
+<p><strong><?php echo __( 'Surnom', 'tvjussieu' ); ?></strong></p>
+<p><input type="text" name="staff_nickname" value="<?php echo esc_attr( $nickname ); ?>" /></p>
 <p><strong><?php echo __( 'Promo', 'tvjussieu' ); ?></strong></p>
 <p>
 	<?php foreach ( $all_promos as $promo ): ?>

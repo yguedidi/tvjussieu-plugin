@@ -103,6 +103,7 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 
 			$firstname = get_post_meta( $post->ID, 'staff_firstname', true );
 			$lastname = get_post_meta( $post->ID, 'staff_lastname', true );
+			$nickname = get_post_meta( $post->ID, 'staff_nickname', true );
 			$role = get_post_meta( $post->ID, 'staff_role', true );
 			$facebook = get_post_meta( $post->ID, 'staff_facebook', true );
 
@@ -137,6 +138,7 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 
 			update_post_meta( $post_id, 'staff_firstname', $_POST['staff_firstname'] );
 			update_post_meta( $post_id, 'staff_lastname', $_POST['staff_lastname'] );
+			update_post_meta( $post_id, 'staff_nickname', $_POST['staff_nickname'] );
 			update_post_meta( $post_id, 'staff_role', $_POST['staff_role'] );
 			update_post_meta( $post_id, 'staff_facebook', $_POST['staff_facebook'] );
 		}
