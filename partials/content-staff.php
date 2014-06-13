@@ -61,6 +61,7 @@
 	</div><!-- .entry-summary -->
 	<?php else : ?>
 	<div class="entry-content">
+		<?php echo do_shortcode( '[facebook_like_button]' ); ?><br/><br/>
 		<?php
 		$firstname = get_post_meta( get_the_ID(), 'staff_firstname', true );
 		$lastname = get_post_meta( get_the_ID(), 'staff_lastname', true );
