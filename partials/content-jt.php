@@ -48,10 +48,8 @@
 	<div class="entry-content">
 	<?php if ( is_singular() ) :?>
 		<?php
-		if ( $youtube = get_post_meta( get_the_ID(), 'jt_youtube', true ) ) :
-			echo wp_oembed_get( $youtube );
-		elseif ( $dailymotion = get_post_meta( get_the_ID(), 'jt_dailymotion', true ) ):
-			echo wp_oembed_get( $dailymotion );
+		if ( $video = get_post_meta( get_the_ID(), 'jt_video', true ) ) :
+			echo wp_oembed_get( $video );
 		endif;
 		?>
 	<?php else : ?>

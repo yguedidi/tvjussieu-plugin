@@ -19,7 +19,5 @@
 </p>
 <p><strong><?php _e( 'JT n°', 'tvjussieu' ); ?></strong></p>
 <p><input type="number" name="jt_n" value="<?php echo esc_attr( $n ); ?>" /></p>
-<p><strong><?php _e( 'Lien Dailymotion', 'tvjussieu' ); ?></strong></p>
-<p><input type="url" name="jt_dailymotion" value="<?php echo esc_attr( $dailymotion ); ?>" /></p>
-<p><strong><?php _e( 'Lien YouTube', 'tvjussieu' ); ?></strong></p>
-<p><input type="url" name="jt_youtube" value="<?php echo esc_attr( $youtube ); ?>" /></p>
+<p><strong><?php _e( 'Lien vidéo', 'tvjussieu' ); ?></strong></p>
+<p><input type="url" name="jt_video" value="<?php echo esc_attr( $video ); ?>" /></p>
