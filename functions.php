@@ -72,4 +72,4 @@ function redirect_to_post(){
         wp_redirect( $post_url );
     }
 }
-add_action('template_redirect', 'redirect_to_post');
+//add_action('template_redirect', 'redirect_to_post');
