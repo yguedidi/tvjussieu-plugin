@@ -43,8 +43,19 @@
 			?>
 		</div><!-- .entry-meta -->
 	</header><!-- .entry-header -->
+	<div class="entry-content">
+	<?php if ( is_singular() ) :?>
+		<div>
+		<?php the_post_thumbnail(); ?>
+		</div>
+	<?php else : ?>
+		<a href="<?php the_permalink(); ?>">
+		<?php the_post_thumbnail(); ?>
+		</a>
+	<?php endif; // End is_singular() ?>
+	</div>
 
-	<?php if ( is_search() || is_archive() ) : ?>
+	<?php if ( is_search() || is_post_type_archive( TVJussieu_Staff::POST_TYPE ) ) : ?>
 	<div class="entry-summary">
 		<?php the_excerpt(); ?>
 	</div><!-- .entry-summary -->
@@ -57,14 +68,26 @@
 		$role = get_post_meta( get_the_ID(), 'staff_role', true );
 		$facebook = get_post_meta( get_the_ID(), 'staff_facebook', true );
 		?>
-		<p>
-			Prénom : <?php echo $firstname; ?><br/>
-			Nom : <?php echo $lastname; ?><br/>
-			Surnom : <?php echo $nickname; ?><br/>
-			Rôle : <?php echo $role; ?><br/>
-			Présent(e) en : <?php echo get_the_term_list( get_the_ID(), 'staff_promo', '', ', ', '' ) ?><br/>
-			<a href="<?php echo $facebook; ?>">Aller sur son Facebook</a><br/>
-		</p>
+		<p><?php
+		if ( $firstname ) {
+			_e( sprintf( '<strong>Nom</strong> : %s<br/>', $firstname ), 'tvjussieu' );
+		}
+		if ( $lastname ) {
+			_e( sprintf( '<strong>Prénom</strong> : %s<br/>', $lastname ), 'tvjussieu' );
+		}
+		if ( $nickname ) {
+			_e( sprintf( '<strong>Surnom</strong> : %s<br/>', $nickname ), 'tvjussieu' );
+		}
+		if ( $role ) {
+			_e( sprintf( '<strong>Rôle</strong> : %s<br/>', $role ), 'tvjussieu' );
+		}
+		if ( get_the_terms( get_the_ID(), 'staff_promo' ) ) {
+			_e( sprintf( '<strong>Présent(e) en</strong> : %s<br/>', get_the_term_list( get_the_ID(), 'staff_promo', '', ', ', '' ) ), 'tvjussieu' );
+		}
+		if ( $facebook ) {
+			_e( sprintf( '<a href="%s">Aller sur son Facebook</a><br/>', esc_attr( $facebook ) ), 'tvjussieu' );
+		}
+		?></p>
 		<?php
 			the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'twentyfourteen' ) );
 			wp_link_pages( array(
