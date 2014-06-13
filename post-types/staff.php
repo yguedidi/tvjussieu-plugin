@@ -131,8 +131,8 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 				return;
 			}
 
+			wp_delete_object_term_relationships( $post_id, self::POST_TYPE . '_promo' );
 			if ( isset( $_POST[self::POST_TYPE . '_promo'] ) ) {
-				wp_delete_object_term_relationships( $post_id, self::POST_TYPE . '_promo' );
 				wp_set_post_terms( $post_id, implode( ',', $_POST[self::POST_TYPE . '_promo'] ), self::POST_TYPE . '_promo' );
 			}
 
