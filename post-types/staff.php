@@ -30,6 +30,7 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 		public function admin_init()
 		{
 			add_action( 'add_meta_boxes', array($this, 'add_meta_boxes') );
+			add_action( 'wp_insert_post_data', array( $this, 'validate_meta' ), 99, 2 );
 		}
 
 		public function create_post_type()
@@ -108,6 +109,22 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 			$facebook = get_post_meta( $post->ID, 'staff_facebook', true );
 
 			include( get_stylesheet_directory() . '/partials/detail_meta_box-' . self::POST_TYPE . '.php');
+		}
+
+		public function validate_meta( $data, $postarr )
+		{
+			if (!is_admin() || !isset( $data['post_type'] ) || self::POST_TYPE !== $data['post_type'] ) {
+				return $data;
+			}
+
+			$firstname = isset( $postarr['staff_firstname'] ) ? trim( $postarr['staff_firstname'] ) : '';
+			$lastname = isset( $postarr['staff_lastname'] ) ? trim( $postarr['staff_lastname'] ) : '';
+
+			if ( empty( $firstname ) || empty( $lastname ) ) {
+				$data['post_status'] = 'draft';
+			}
+
+			return $data;
 		}
 
 		public function pre_save_post( $data, $postarr )
