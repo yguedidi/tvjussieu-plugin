@@ -411,6 +411,12 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 				'show_admin_column' => true,
 				'show_in_nav_menus' => true,
 				'show_tagcloud' => true,
+				'capabilities' => array(
+					'manage_terms' => 'manage_options',
+					'edit_terms' => 'manage_options',
+					'delete_terms' => 'manage_options',
+					'assign_terms' => 'edit_posts',
+				),
 				'rewrite' => array(
 					'slug' => self::SLUG,
 					'with_front' => true,
@@ -457,6 +463,12 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 				'show_admin_column' => true,
 				'show_in_nav_menus' => true,
 				'show_tagcloud' => true,
+				'capabilities' => array(
+					'manage_terms' => 'manage_options',
+					'edit_terms' => 'manage_options',
+					'delete_terms' => 'manage_options',
+					'assign_terms' => 'edit_posts',
+				),
 				'rewrite' => true,
 				/*'rewrite' => array(
 					'slug' => 'jt-type',

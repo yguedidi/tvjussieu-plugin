@@ -191,6 +191,12 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 				'show_admin_column' => true,
 				'show_in_nav_menus' => true,
 				'show_tagcloud' => true,
+				'capabilities' => array(
+					'manage_terms' => 'manage_options',
+					'edit_terms' => 'manage_options',
+					'delete_terms' => 'manage_options',
+					'assign_terms' => 'edit_posts',
+				),
 				'rewrite' => array(
 					'slug' => self::POST_TYPE,
 					'with_front' => true,
