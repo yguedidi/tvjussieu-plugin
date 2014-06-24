@@ -21,8 +21,8 @@
 <p><strong><?php _e( 'JT n°', 'tvjussieu' ); ?></strong></p>
 <p><input type="number" name="jt_n" value="<?php echo esc_attr( $n ); ?>" /></p>
 </div>
-<p><strong><?php _e( 'Lien vidéo', 'tvjussieu' ); ?></strong></p>
-<p><input type="url" name="jt_video" value="<?php echo esc_attr( $video ); ?>" /></p>
+<p><strong><?php _e( 'Lien vidéo', 'tvjussieu' ); ?>*</strong></p>
+<p><input type="url" name="jt_video" value="<?php echo esc_attr( $video ); ?>" required /></p>
 <script type="text/javascript">
 	jQuery(document).ready(function($){
 		$('input[name=jt_type]').change(function(e) {

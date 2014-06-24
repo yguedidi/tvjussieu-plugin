@@ -35,6 +35,7 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 			add_action( 'save_post', array($this, 'save_post') );
 
 			add_action( 'add_meta_boxes', array($this, 'add_meta_boxes') );
+			add_action( 'wp_insert_post_data', array( $this, 'validate_meta' ), 99, 2 );
 
 			add_filter( 'manage_edit-jt_columns', array($this, 'reorder_edit_column'), 10, 1 );
 			add_filter( 'manage_edit-jt_sortable_columns', array($this, 'sortable_jt_name_column') );
@@ -254,6 +255,21 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 			$n = get_post_meta( $post->ID, 'jt_n', true );
 
 			return home_url( self::SLUG . '/' . $season . '/' . $type . '-' . $n .'/' );
+		}
+
+		public function validate_meta( $data, $postarr )
+		{
+			if (!is_admin() || !isset( $data['post_type'] ) || self::POST_TYPE !== $data['post_type'] ) {
+				return $data;
+			}
+
+			$video = isset( $postarr['jt_video'] ) ? trim( $postarr['jt_video'] ) : '';
+
+			if ( empty( $video ) ) {
+				$data['post_status'] = 'draft';
+			}
+
+			return $data;
 		}
 
 		public function pre_save_post( $data, $postarr )
