@@ -69,16 +69,11 @@
 		$role = get_post_meta( get_the_ID(), 'staff_role', true );
 		$facebook = get_post_meta( get_the_ID(), 'staff_facebook', true );
 		?>
-		<p><?php
-		if ( $firstname ) {
-			_e( sprintf( '<strong>Nom</strong> : %s<br/>', $firstname ), 'tvjussieu' );
-		}
-		if ( $lastname ) {
-			_e( sprintf( '<strong>Prénom</strong> : %s<br/>', $lastname ), 'tvjussieu' );
-		}
+		<p><strong><?php echo $firstname . ' ' . $lastname; ?></strong><?php
 		if ( $nickname ) {
-			_e( sprintf( '<strong>Surnom</strong> : %s<br/>', $nickname ), 'tvjussieu' );
+			_e( sprintf( ', a.k.a. %s', $nickname ), 'tvjussieu' );
 		}
+		echo '<br/>';
 		if ( $role ) {
 			_e( sprintf( '<strong>Rôle</strong> : %s<br/>', $role ), 'tvjussieu' );
 		}
