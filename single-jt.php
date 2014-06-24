@@ -20,7 +20,7 @@ get_header();
 			 * use this in a child theme, then include a file called called content-___.php
 			 * (where ___ is the post format) and that will be used instead.
 			 */
-			get_template_part( 'partials/content', 'jt' );
+			get_template_part( 'content', 'jt' );
 
 			// Previous/next post navigation.
 			// Don't print empty markup if there's nowhere to navigate.

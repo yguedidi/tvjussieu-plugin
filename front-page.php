@@ -49,7 +49,7 @@ get_header();
 			while ( $query->have_posts() ) : $query->the_post();
 
 				// Include the page content template.
-				get_template_part( 'partials/content', 'jt' );
+				get_template_part( 'content', 'jt' );
 			endwhile;
 			?>
 
