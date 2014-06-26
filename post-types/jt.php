@@ -16,7 +16,13 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 		{
 			add_filter( 'post_type_link', array($this, 'jt_link'), 10, 3 );
 			add_rewrite_rule(
-				self::SLUG . '/([^/]+)/([^/]+)-([0-9]+)/?$', 'index.php?post_type=' . self::POST_TYPE . '&name=$matches[1]-$matches[2]-$matches[3]', 'top'
+				self::SLUG . '/([^/]+)/jt-([0-9]+)-([^/]+)/?$', 'index.php?post_type=' . self::POST_TYPE . '&name=$matches[1]-jt-$matches[2]-$matches[3]', 'top'
+			);
+			add_rewrite_rule(
+				self::SLUG . '/([^/]+)/jt-([0-9]+)/?$', 'index.php?post_type=' . self::POST_TYPE . '&name=$matches[1]-jt-$matches[2]', 'top'
+			);
+			add_rewrite_rule(
+				self::SLUG . '/([^/]+)/([^/]+)-([^/]+)/?$', 'index.php?post_type=' . self::POST_TYPE . '&name=$matches[1]-$matches[2]-$matches[3]', 'top'
 			);
 
 			add_permastruct('jt_perma', self::SLUG . '/%jt_season%/%jt_type%');
@@ -64,28 +70,33 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 			switch ($column) {
 				case 'jt_name':
 					$season = get_the_terms( $post_id, self::POST_TYPE . '_season' );
+					$seasonSlug = 'hors-saison';
+					$seasonText = 'Hors-Saison';
 					if ( !is_wp_error( $season ) && !empty( $season ) && is_object( reset( $season ) ) ) {
 						$season = reset( $season );
-						$season = sprintf( '<a href="%s">%s</a>',
+						$seasonText = sprintf( '<a href="%s">%s</a>',
 							esc_url( add_query_arg( array( 'post_type' => self::POST_TYPE, 'jt_season' => $season->slug ), 'edit.php' ) ),
 							esc_html( sanitize_term_field( 'name', $season->name, $season->term_id, 'jt_season', 'display' ) )
 						);
-					} else {
-						$season = 'hors-saison';
+						$seasonSlug = $season->slug;
 					}
 
 					$type = get_the_terms( $post_id, self::POST_TYPE . '_type' );
+					$typeSlug = 'jt';
+					$typeText = 'JT';
 					if ( !is_wp_error( $type ) && !empty( $type ) && is_object( reset( $type ) ) ) {
 						$type = reset( $type );
-						$type = sprintf( '<a href="%s">%s</a>',
+						$typeText = sprintf( '<a href="%s">%s</a>',
 							esc_url( add_query_arg( array( 'post_type' => self::POST_TYPE, 'jt_type' => $type->slug ), 'edit.php' ) ),
 							esc_html( sanitize_term_field( 'name', $type->name, $type->term_id, 'jt_type', 'display' ) )
 						);
-					} else {
-						$type = 'jt';
+						$typeSlug = $type->slug;
 					}
 
-					echo $season . ' - ' . $type . ' - n°' . get_post_meta( $post_id, 'jt_n', true );
+					echo $seasonText . ' - ' . $typeText;
+					if ( 'jt' === $typeSlug ) {
+						echo ' - n°' . get_post_meta( $post_id, 'jt_n', true );
+					}
 					break;
 			}
 		}
@@ -118,24 +129,33 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 				$title = ' - ' . $title;
 			}
 
-			$n = get_post_meta( $post->ID, 'jt_n', true );
-
-			$types = get_the_terms( $post->ID, self::POST_TYPE . '_type' );
-			if ( !is_wp_error( $types ) && !empty( $types ) && is_object( reset( $types ) ) ) {
-				$type = reset( $types )->name;
-			} else {
-				$type = 'jt';
+			$type = get_the_terms( $post_id, self::POST_TYPE . '_type' );
+			$typeSlug = 'jt';
+			$typeText = 'JT';
+			if ( !is_wp_error( $type ) && !empty( $type ) && is_object( reset( $type ) ) ) {
+				$type = reset( $type );
+				$typeText =  $type->name;
+				$typeSlug = $type->slug;
 			}
-			$title = $type .= ' n°' . $n . $title;
+
+			if ( 'jt' === $typeSlug ) {
+				$n = get_post_meta( $post->ID, 'jt_n', true );
+				$title = ' n°' . $n . $title;
+			}
+
+			$title = $typeText . $title;
 
 			if ( is_singular(self::POST_TYPE) || is_post_type_archive(self::POST_TYPE) || is_admin() ) {
-				$seasons = get_the_terms( $post->ID, self::POST_TYPE . '_season' );
-				if ( !is_wp_error( $seasons ) && !empty( $seasons ) && is_object( reset( $seasons ) ) ) {
-					$season = reset( $seasons )->name;
-				} else {
-					$season = 'hors-saison';
+				$season = get_the_terms( $post_id, self::POST_TYPE . '_season' );
+				$seasonSlug = 'hors-saison';
+				$seasonText = 'Hors-Saison';
+				if ( !is_wp_error( $season ) && !empty( $season ) && is_object( reset( $season ) ) ) {
+					$season = reset( $season );
+					$seasonText = $season->name;
+					$seasonSlug = $season->slug;
 				}
-				$title = $season . ' - ' . $title;
+
+				$title = $seasonText . ' - ' . $title;
 			}
 
 			return $title;
@@ -254,7 +274,15 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 
 			$n = get_post_meta( $post->ID, 'jt_n', true );
 
-			return home_url( self::SLUG . '/' . $season . '/' . $type . '-' . $n .'/' );
+			$url = self::SLUG . '/' . $season . '/' . $type;
+			if ( 'jt' === $type ) {
+				$url .= '-' . $n;
+			}
+			if ( !empty( $post->post_title ) ) {
+				$url .= '-' . sanitize_title( $post->post_title );
+			}
+
+			return home_url( $url .'/' );
 		}
 
 		public function validate_meta( $data, $postarr )
@@ -278,7 +306,13 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 				return $data;
 			}
 
-			$data['post_name'] = $postarr['jt_season'] . '-' . $postarr['jt_type'] . '-' . ( (int) $postarr['jt_n'] );
+			$data['post_name'] = $postarr['jt_season'] . '-' . $postarr['jt_type'];
+			if ( 'jt' === $postarr['jt_type'] ) {
+				$data['post_name'] .= '-' . ( (int) $postarr['jt_n'] );
+			}
+			if( !empty( $data['post_title'] ) ) {
+				$data['post_name'] .= '-' . sanitize_title( $data['post_title'] );
+			}
 
 			return $data;
 		}
