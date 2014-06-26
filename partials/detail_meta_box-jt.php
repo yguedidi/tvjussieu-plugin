@@ -26,7 +26,15 @@
 <script type="text/javascript">
 	jQuery(document).ready(function($){
 		$('input[name=jt_type]').change(function(e) {
-			$('#jt_number_field').toggle('jt' === $('input[name=jt_type]:checked').val());
+			isJT = 'jt' === $('input[name=jt_type]:checked').val();
+			$('#jt_number_field').toggle(isJT);
+			$('#jt_number_field input[name=jt_number]').prop('required', isJT);
+		}).change();
+
+		$('input[name=jt_type], select[name=jt_season]').change(function(e) {
+			isJTSpecial = 'jt-special' === $('input[name=jt_type]:checked').val();
+			isHorsSaison = 'hors-saison' === $('select[name=jt_season]').val();
+			$('input[name=post_title]').prop('required', isHorsSaison || isJTSpecial);
 		}).change();
 	});
 </script>

@@ -293,7 +293,8 @@ if ( !class_exists( 'TVJussieu_JT' ) ) {
 
 			$video = isset( $postarr['jt_video'] ) ? trim( $postarr['jt_video'] ) : '';
 
-			if ( empty( $video ) ) {
+			if ( empty( $video )
+				|| empty( $data['post_title'] ) && ( 'jt-special' === $postarr['jt_type'] || 'hors-saison' === $postarr['jt_season'] ) ) {
 				$data['post_status'] = 'draft';
 			}
 
