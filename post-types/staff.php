@@ -113,7 +113,7 @@ if ( !class_exists( 'TVJussieu_Staff' ) ) {
 
 		public function validate_meta( $data, $postarr )
 		{
-			if (!is_admin() || !isset( $data['post_type'] ) || self::POST_TYPE !== $data['post_type'] ) {
+			if (!is_admin() || !isset( $data['post_type'] ) || self::POST_TYPE !== $data['post_type'] || 'trash' === $data['post_status'] ) {
 				return $data;
 			}
 
