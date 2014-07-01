@@ -28,7 +28,7 @@
 		$('input[name=jt_type]').change(function(e) {
 			isJT = 'jt' === $('input[name=jt_type]:checked').val();
 			$('#jt_number_field').toggle(isJT);
-			$('#jt_number_field input[name=jt_number]').prop('required', isJT);
+			$('#jt_number_field input[name=jt_n]').prop('required', isJT);
 		}).change();
 
 		$('input[name=jt_type], select[name=jt_season]').change(function(e) {
