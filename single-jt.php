@@ -27,10 +27,7 @@ get_header();
 			$previous = ( is_attachment() ) ? get_post( get_post()->post_parent ) : get_adjacent_post( false, '', true );
 			$next     = get_adjacent_post( false, '', false );
 
-			if ( ! $next && ! $previous ) {
-				return;
-			}
-
+			if ( $next || $previous ) {
 			?>
 			<nav class="navigation post-navigation" role="navigation">
 				<h1 class="screen-reader-text"><?php _e( 'JT navigation', 'tvjussieu' ); ?></h1>
@@ -46,6 +43,7 @@ get_header();
 				</div><!-- .nav-links -->
 			</nav><!-- .navigation -->
 			<?php
+			}
 
 			// If comments are open or we have at least one comment, load up the comment template.
 			if ( comments_open() || get_comments_number() ) {
